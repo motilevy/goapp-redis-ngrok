@@ -1,0 +1,44 @@
+version: '2.1'
+
+networks:
+  gonet:
+    driver: bridge
+
+services:
+  ngrok:
+    image: ngrok
+    container_name: ngrok
+    restart: unless-stopped
+    command: "goapp:8080"
+    environment:
+      - "TARGET=goapp:8080"
+    ports:
+      - "4040:4040"
+    networks:
+      - gonet
+    links:
+      - goapp:8080
+    depends_on:
+      - goapp
+
+  goapp:
+    image: goapp
+    container_name: goapp
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    links:
+      - redis:6379
+    networks:
+      - gonet
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - gonet
